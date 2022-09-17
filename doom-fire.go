@@ -28,7 +28,7 @@ type Dimensions struct {
 	Height int
 }
 
-func MapColor(v int8) [3]uint8 {
+func mapColor(v int8) [3]uint8 {
 	cmap := [][3]uint8{
 		{0x07, 0x07, 0x07}, {0x1f, 0x07, 0x07}, {0x2f, 0x0f, 0x07},
 		{0x47, 0x0f, 0x07}, {0x57, 0x17, 0x07}, {0x67, 0x1f, 0x07},
@@ -110,13 +110,13 @@ func (flame *Flame) Render() {
 	prevbg, prevfg := [3]uint8{}, [3]uint8{}
 	for y := 0; y < flame.height; y += 2 {
 		for x := 0; x < flame.width; x++ {
-			if c := MapColor(flame.grid[(y*flame.width)+x]); c != prevfg {
+			if c := mapColor(flame.grid[(y*flame.width)+x]); c != prevfg {
 				// change foreground color
 				flame.buffer.WriteString(fmt.Sprintf("\x1b[38;2;%d;%d;%dm", c[0], c[1], c[2]))
 				prevfg = c
 			}
 
-			if c := MapColor(flame.grid[((y+1)*flame.width)+x]); c != prevbg {
+			if c := mapColor(flame.grid[((y+1)*flame.width)+x]); c != prevbg {
 				// change background color
 				flame.buffer.WriteString(fmt.Sprintf("\x1b[48;2;%d;%d;%dm", c[0], c[1], c[2]))
 				prevbg = c
@@ -132,7 +132,7 @@ func (flame *Flame) Render() {
 	time.Sleep(100 * time.Millisecond)
 }
 
-func WithDimentions(width int, height int) func(*Flame) error {
+func withDimentions(width int, height int) func(*Flame) error {
 	return func(i *Flame) error {
 		i.width = width
 		i.height = height
@@ -140,7 +140,7 @@ func WithDimentions(width int, height int) func(*Flame) error {
 	}
 }
 
-func NewFlame(opts ...func(*Flame) error) (*Flame, error) {
+func newFlame(opts ...func(*Flame) error) (*Flame, error) {
 	rc := Flame{}
 
 	rc.buffer = &bytes.Buffer{}
@@ -157,7 +157,7 @@ func NewFlame(opts ...func(*Flame) error) (*Flame, error) {
 func fire(ctx context.Context) chan Dimensions {
 	rc := make(chan Dimensions)
 	go func() {
-		flame, err := NewFlame(WithDimentions(0, 0))
+		flame, err := newFlame(withDimentions(0, 0))
 
 		if err != nil {
 			return
